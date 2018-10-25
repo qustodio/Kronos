@@ -22,12 +22,28 @@ class TimeStoragePolicyTests: XCTestCase {
 }
 
 class TimeStorageTests: XCTestCase {
-    func testStoringAndRetrievingTimeFreeze() {
+    func testStoringAndRetrievingUserDefaultsTimeFreeze() {
         var storage = TimeStorage(storagePolicy: .standard)
         let sampleFreeze = TimeFreeze(offset: 5000.32423)
         storage.stableTime = sampleFreeze
         let fromDefaults = storage.stableTime
         XCTAssertNotNil(fromDefaults)
         XCTAssertEqual(sampleFreeze.toDictionary(), fromDefaults!.toDictionary())
+    }
+
+    func testStoringAndRetrievingMemoryTimeFreeze() {
+        let userDefaults = UserDefaults()
+        userDefaults.removeObject(forKey: TimeStorageUserDefaults.kDefaultsKey)
+
+        var storage = TimeStorage(storagePolicy: .memory)
+        let sampleFreeze = TimeFreeze(offset: 5000.32423)
+        let fromMemoryEmpty = storage.stableTime
+        XCTAssertNil(fromMemoryEmpty)
+
+        storage.stableTime = sampleFreeze
+        let fromMemory = storage.stableTime
+        XCTAssertNotNil(fromMemory)
+        XCTAssertEqual(sampleFreeze.toDictionary(), fromMemory!.toDictionary())
+        XCTAssertNil(userDefaults.value(forKey: TimeStorageUserDefaults.kDefaultsKey))
     }
 }
